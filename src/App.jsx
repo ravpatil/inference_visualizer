@@ -4,12 +4,14 @@ import InferencePipelinePage from "./InferencePipelinePage.jsx";
 import SingleVLLMPage from "./SingleVLLMPage.jsx";
 import LoadBalancerPage from "./LoadBalancerPage.jsx";
 import IntelligentRoutingPage from "./IntelligentRoutingPage.jsx";
+import LlmDInActionPage from "./LlmDInActionPage.jsx";
 
 const PAGES = [
   { id: "inference", label: "Inference Pipeline" },
   { id: "single", label: "Single vLLM" },
   { id: "loadbalancer", label: "Naive LB" },
   { id: "intelligent", label: "llm-d Routing" },
+  { id: "llmd-action", label: "llm-d In Action" },
 ];
 
 export default function App() {
@@ -83,6 +85,7 @@ export default function App() {
       {page === "single" && <SingleVLLMPage />}
       {page === "loadbalancer" && <LoadBalancerPage />}
       {page === "intelligent" && <IntelligentRoutingPage />}
+      {page === "llmd-action" && <LlmDInActionPage />}
     </div>
   );
 }
