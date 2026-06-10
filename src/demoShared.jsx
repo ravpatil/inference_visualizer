@@ -176,6 +176,37 @@ export function GlowButton({ onClick, color, children, disabled, fullWidth }) {
   );
 }
 
+export function IconButton({ onClick, color, children, disabled, title }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      aria-label={title}
+      style={{
+        background: disabled ? C.dim : `${color}22`,
+        border: `1px solid ${disabled ? C.border : `${color}88`}`,
+        color: disabled ? C.muted : color,
+        fontFamily: "monospace",
+        fontSize: 15,
+        fontWeight: "bold",
+        padding: "6px 9px",
+        borderRadius: 6,
+        cursor: disabled ? "not-allowed" : "pointer",
+        transition: "all 0.2s",
+        opacity: disabled ? 0.5 : 1,
+        lineHeight: 1,
+        minWidth: 32,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function Stat({ label, value, color }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -227,7 +258,9 @@ export function PageLayout({ main, sidebar }) {
           top: 96,
           display: "flex",
           flexDirection: "column",
-          gap: 20,
+          gap: 0,
+          alignSelf: "stretch",
+          minHeight: "calc(100vh - 120px)",
         }}
       >
         {sidebar}
@@ -279,7 +312,7 @@ export function PageHeader({ color, title, description }) {
   );
 }
 
-export function SectionLabel({ children }) {
+export function SectionLabel({ children, style }) {
   return (
     <div
       style={{
@@ -289,6 +322,7 @@ export function SectionLabel({ children }) {
         marginBottom: 10,
         letterSpacing: "0.08em",
         fontWeight: "bold",
+        ...style,
       }}
     >
       {children}
@@ -307,16 +341,29 @@ export function SidebarControls({
   onReset,
 }) {
   return (
-    <>
+    <div
+      style={{
+        background: `${C.bg}aa`,
+        border: `1px solid ${C.border}`,
+        borderRadius: 12,
+        padding: "12px 14px",
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
       <div
         style={{
-          background: `${C.bg}aa`,
-          border: `1px solid ${C.border}`,
-          borderRadius: 12,
-          padding: "20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          marginBottom: 8,
+          flexShrink: 0,
         }}
       >
-        <SectionLabel>CONTROLS</SectionLabel>
+        <SectionLabel style={{ marginBottom: 0 }}>EVENT LOG</SectionLabel>
         <PlaybackControls
           playing={playing}
           completed={completed}
@@ -325,22 +372,11 @@ export function SidebarControls({
           onPause={onPause}
           onStep={onStep}
           onReset={onReset}
-          vertical
+          compact
         />
       </div>
-      <div
-        style={{
-          background: `${C.bg}aa`,
-          border: `1px solid ${C.border}`,
-          borderRadius: 12,
-          padding: "20px",
-          flex: 1,
-        }}
-      >
-        <SectionLabel>EVENT LOG</SectionLabel>
-        <EventLog events={events} inSidebar />
-      </div>
-    </>
+      <EventLog events={events} inSidebar />
+    </div>
   );
 }
 
@@ -369,7 +405,33 @@ export function animateValue(setter, durationMs) {
   });
 }
 
-export function PlaybackControls({ playing, completed, isAnimating, onPlay, onPause, onStep, onReset, vertical }) {
+export function PlaybackControls({ playing, completed, isAnimating, onPlay, onPause, onStep, onReset, vertical, compact }) {
+  if (compact) {
+    const playTitle = completed ? "Replay" : playing ? "Playing…" : "Play All";
+    const playIcon = completed ? "↺" : "▶";
+    return (
+      <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+        <IconButton
+          onClick={onPlay}
+          color={C.green}
+          disabled={isAnimating || (playing && !completed)}
+          title={playTitle}
+        >
+          {playIcon}
+        </IconButton>
+        <IconButton onClick={onPause} color={C.gold} disabled={!playing} title="Pause">
+          ⏸
+        </IconButton>
+        <IconButton onClick={onStep} color={C.cyan} disabled={isAnimating || completed} title="Step">
+          ⏭
+        </IconButton>
+        <IconButton onClick={onReset} color={C.muted} disabled={isAnimating} title="Reset">
+          ⟲
+        </IconButton>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", flexDirection: vertical ? "column" : "row" }}>
       <GlowButton onClick={onPlay} color={C.green} disabled={isAnimating || (playing && !completed)} fullWidth={vertical}>
@@ -393,7 +455,7 @@ export function EventLog({ events, inSidebar }) {
     <div
       style={{
         ...(inSidebar
-          ? { maxHeight: 520, overflowY: "auto" }
+          ? { flex: 1, minHeight: 0, maxHeight: "calc(100vh - 200px)", overflowY: "auto" }
           : {
               background: `${C.bg}aa`,
               border: `1px solid ${C.border}`,
